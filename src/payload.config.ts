@@ -14,6 +14,7 @@ import { Website } from './globals/Website'
 import { Pages } from './globals/Pages'
 import { Sections } from './globals/Sections'
 import { Translations } from './globals/Translations'
+import { migrations } from './migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -42,8 +43,9 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
-    // Sync Drizzle schema on boot (required for empty remote DB)
+    // Dev: drizzle push. Prod: NODE_ENV=production skips push — use migrations.
     push: true,
+    prodMigrations: migrations,
   }),
   localization: {
     locales: [
