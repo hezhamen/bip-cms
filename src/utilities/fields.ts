@@ -1,6 +1,6 @@
-import type { Field } from 'payload'
+import type { Field, TextField, TextareaField } from 'payload'
 
-/** Localized required text field helper */
+/** Localized required text / textarea field helper */
 export function LText(
   name: string,
   label: string,
@@ -8,12 +8,26 @@ export function LText(
   opts?: { required?: boolean; textarea?: boolean },
 ): Field {
   const required = opts?.required ?? true
-  return {
+
+  if (opts?.textarea) {
+    const field: TextareaField = {
+      name,
+      label,
+      type: 'textarea',
+      required,
+      localized: true,
+      ...(defaultValue !== undefined ? { defaultValue } : {}),
+    }
+    return field
+  }
+
+  const field: TextField = {
     name,
     label,
-    type: opts?.textarea ? 'textarea' : 'text',
+    type: 'text',
     required,
     localized: true,
     ...(defaultValue !== undefined ? { defaultValue } : {}),
   }
+  return field
 }
