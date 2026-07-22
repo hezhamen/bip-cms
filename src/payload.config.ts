@@ -88,7 +88,7 @@ export default buildConfig({
     ContactPage,
   ],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || '',
+  secret: process.env.PAYLOAD_SECRET || 'dev-secret-change-me',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
@@ -96,8 +96,8 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
-    // Allow first-deploy schema sync against remote Postgres
-    push: true,
+    // Avoid DB writes during image build; enable at runtime with PAYLOAD_PUSH=true
+    push: process.env.PAYLOAD_PUSH === 'true',
   }),
   localization: {
     locales: [

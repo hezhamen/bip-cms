@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml* ./
 RUN corepack enable && \
     corepack prepare pnpm@10.22.0 --activate && \
-    pnpm i --frozen-lockfile || pnpm i && \
+    (pnpm i --frozen-lockfile || pnpm i) && \
     pnpm store prune && \
     rm -rf /root/.local/share/pnpm/store
 
@@ -17,6 +17,15 @@ WORKDIR /app
 RUN corepack enable
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--no-deprecation --max-old-space-size=8000"
+
+# Payload config requires these at build time (no live DB needed when PAYLOAD_PUSH!=true)
+ARG DATABASE_URL=postgresql://bip:bip@127.0.0.1:5432/bip_cms
+ARG PAYLOAD_SECRET=build-time-secret-not-used-in-prod
+ARG PAYLOAD_PUBLIC_SERVER_URL=http://localhost:3000
+ENV DATABASE_URL=$DATABASE_URL
+ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
+ENV PAYLOAD_PUBLIC_SERVER_URL=$PAYLOAD_PUBLIC_SERVER_URL
+ENV PAYLOAD_PUSH=false
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -33,6 +42,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV NODE_OPTIONS=--no-warnings
+ENV PAYLOAD_PUSH=true
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs && \

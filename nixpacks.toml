@@ -1,3 +1,4 @@
+# Prefer Dockerfile on Dokploy — kept for local nixpacks experiments only.
 [phases.setup]
 nixPkgs = ["nodejs_22", "pnpm"]
 
@@ -8,4 +9,4 @@ cmds = ["pnpm install"]
 cmds = ["pnpm run build"]
 
 [start]
-cmd = "pnpm exec next start --port ${PORT:-3000}"
+cmd = "node server.js"
