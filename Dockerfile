@@ -25,7 +25,6 @@ ARG PAYLOAD_PUBLIC_SERVER_URL=http://localhost:3000
 ENV DATABASE_URL=$DATABASE_URL
 ENV PAYLOAD_SECRET=$PAYLOAD_SECRET
 ENV PAYLOAD_PUBLIC_SERVER_URL=$PAYLOAD_PUBLIC_SERVER_URL
-ENV PAYLOAD_PUSH=false
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -42,7 +41,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV NODE_OPTIONS=--no-warnings
-ENV PAYLOAD_PUSH=true
 
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs && \

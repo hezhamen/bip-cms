@@ -96,8 +96,8 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
-    // Avoid DB writes during image build; enable at runtime with PAYLOAD_PUSH=true
-    push: process.env.PAYLOAD_PUSH === 'true',
+    // Sync Drizzle schema on boot (required for empty remote DB)
+    push: true,
   }),
   localization: {
     locales: [
