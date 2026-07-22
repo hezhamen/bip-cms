@@ -96,6 +96,8 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
+    // Allow first-deploy schema sync against remote Postgres
+    push: true,
   }),
   localization: {
     locales: [
