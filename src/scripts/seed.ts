@@ -1,6 +1,6 @@
 /**
  * Seed BIP CMS with English content from bip-web.
- * Run: pnpm seed  (MongoDB must be running)
+ * Run: pnpm seed  (Postgres via docker compose must be running)
  */
 import 'dotenv/config'
 import fs from 'fs'
@@ -235,22 +235,8 @@ async function seed() {
     mediaCache,
   )
 
-  // Clear + reseed collections (idempotent-ish)
-  const collectionsToClear = [
-    'speakers',
-    'news-articles',
-    'videos',
-    'gallery-slides',
-    'sectors',
-    'summit-editions',
-    'program-highlights',
-    'media-channels',
-    'chat-replies',
-    'stats',
-    'partnership-tracks',
-  ] as const
-
-  for (const slug of collectionsToClear) {
+  // Clear + reseed growing collections
+  for (const slug of ['speakers', 'news-articles'] as const) {
     console.log(`Clearing ${slug}…`)
     await clearCollection(payload, slug)
   }
@@ -296,85 +282,29 @@ async function seed() {
     })
   }
 
-  console.log('Seeding videos…')
+  console.log('Preparing section media…')
   const allVideos = [FEATURED_VIDEO, ...SIDEBAR_VIDEOS]
+  const videoRows = []
   for (let i = 0; i < allVideos.length; i++) {
     const v = allVideos[i]!
     const imageId = await uploadFile(payload, v.image, v.title, mediaCache)
-    await payload.create({
-      collection: 'videos',
-      locale: EN,
-      data: {
-        title: v.title,
-        key: v.id,
-        description: v.description,
-        shortDescription: v.shortDescription,
-        image: imageId,
-        youtubeUrl: v.href,
-        featured: i === 0,
-        order: i,
-      },
+    videoRows.push({
+      title: v.title,
+      key: v.id,
+      description: v.description,
+      shortDescription: v.shortDescription,
+      image: imageId,
+      youtubeUrl: v.href,
+      featured: i === 0,
     })
   }
 
-  console.log('Seeding gallery…')
-  for (let i = 0; i < GALLERY_SLIDES.length; i++) {
-    const g = GALLERY_SLIDES[i]!
+  const galleryRows = []
+  for (const g of GALLERY_SLIDES) {
     const imageId = await uploadFile(payload, g.src, g.alt, mediaCache)
-    await payload.create({
-      collection: 'gallery-slides',
-      locale: EN,
-      data: { image: imageId, alt: g.alt, order: i },
-    })
+    galleryRows.push({ image: imageId, alt: g.alt })
   }
 
-  console.log('Seeding sectors…')
-  for (let i = 0; i < KEY_SECTORS.length; i++) {
-    const s = KEY_SECTORS[i]!
-    await payload.create({
-      collection: 'sectors',
-      locale: EN,
-      data: {
-        number: s.number,
-        title: s.title,
-        description: s.description,
-        href: s.href,
-        order: i,
-      },
-    })
-  }
-
-  console.log('Seeding summit editions…')
-  for (let i = 0; i < SUMMIT_EDITIONS.length; i++) {
-    const s = SUMMIT_EDITIONS[i]!
-    await payload.create({
-      collection: 'summit-editions',
-      locale: EN,
-      data: {
-        year: s.year,
-        description: s.description,
-        href: s.href,
-        order: i,
-      },
-    })
-  }
-
-  console.log('Seeding program highlights…')
-  for (let i = 0; i < PROGRAM_HIGHLIGHTS.length; i++) {
-    const h = PROGRAM_HIGHLIGHTS[i]!
-    await payload.create({
-      collection: 'program-highlights',
-      locale: EN,
-      data: {
-        number: h.number,
-        title: h.title,
-        description: h.description,
-        order: i,
-      },
-    })
-  }
-
-  console.log('Seeding media channels…')
   const channels = [
     { src: '/icons/media-1.svg', label: 'Regional Press' },
     { src: '/icons/media-2.svg', label: 'Business Wire' },
@@ -382,71 +312,26 @@ async function seed() {
     { src: '/icons/media-4.svg', label: 'Trade Media' },
     { src: '/icons/media-1.svg', label: 'Digital Outlets' },
   ]
-  for (let i = 0; i < channels.length; i++) {
-    const c = channels[i]!
+  const channelRows = []
+  for (const c of channels) {
     const logoId = await uploadFile(payload, c.src, c.label, mediaCache)
-    await payload.create({
-      collection: 'media-channels',
-      locale: EN,
-      data: { label: c.label, logo: logoId, order: i },
-    })
+    channelRows.push({ label: c.label, logo: logoId })
   }
 
-  console.log('Seeding chat replies…')
-  for (let i = 0; i < CHAT_REPLIES.length; i++) {
-    const r = CHAT_REPLIES[i]!
+  const chatRows = []
+  for (const r of CHAT_REPLIES) {
     const imageId = r.image
       ? await uploadFile(payload, r.image, 'Chat reply image', mediaCache)
       : undefined
-    await payload.create({
-      collection: 'chat-replies',
-      locale: EN,
-      data: {
-        text: r.text,
-        ...(imageId ? { image: imageId } : {}),
-        order: i,
-      },
+    chatRows.push({
+      text: r.text,
+      ...(imageId ? { image: imageId } : {}),
     })
   }
 
-  console.log('Seeding stats…')
-  const stats = [
-    { value: '208', label: 'TOTAL ATTENDEES' },
-    { value: '16+', label: 'COUNTRIES' },
-    { value: '$360M+', label: 'INVESTMENT FACILITATED' },
-    { value: '3', label: 'EDITIONS' },
-    { value: '24', label: 'SPEAKERS' },
-  ]
-  for (let i = 0; i < stats.length; i++) {
-    const s = stats[i]!
-    await payload.create({
-      collection: 'stats',
-      locale: EN,
-      data: { value: s.value, label: s.label, order: i },
-    })
-  }
-
-  console.log('Seeding partnership tracks…')
-  for (const track of ['sponsor', 'collaborator'] as const) {
-    const content = PARTNERSHIP_OVERLAYS[track]
-    await payload.create({
-      collection: 'partnership-tracks',
-      locale: EN,
-      data: {
-        track,
-        title: content.title,
-        description: content.description,
-        benefits: content.benefits.map((b) => ({
-          number: b.number,
-          text: b.text,
-        })),
-      },
-    })
-  }
-
-  console.log('Updating globals…')
+  console.log('Updating Website…')
   await payload.updateGlobal({
-    slug: 'site-settings',
+    slug: 'website',
     locale: EN,
     data: {
       siteTitle: 'BIP Summit',
@@ -463,13 +348,6 @@ async function seed() {
       ctaBandBody:
         'BIP connects companies, innovators, and investors to build lasting prosperity across the region.',
       ctaBandHeading: 'Get in Touch',
-    },
-  })
-
-  await payload.updateGlobal({
-    slug: 'navigation',
-    locale: EN,
-    data: {
       headerLinks: [
         { label: 'Home', href: '/' },
         { label: 'About', href: '/about' },
@@ -504,29 +382,73 @@ async function seed() {
         { label: 'BIP 2024', href: '/summits' },
         { label: 'BIP 2025', href: '/summits' },
       ],
-    },
-  })
-
-  await payload.updateGlobal({
-    slug: 'translations',
-    locale: EN,
-    data: TRANSLATIONS_EN,
-  })
-
-  await payload.updateGlobal({
-    slug: 'languages-settings',
-    data: {
       enableEnglish: true,
       enableKurdish: true,
       enableArabic: true,
     },
   })
 
+  console.log('Updating Pages…')
   await payload.updateGlobal({
-    slug: 'mission',
+    slug: 'pages',
     locale: EN,
     data: {
-      tabs: [
+      home: {
+        seoTitle: 'BIP Summit',
+        seoDescription:
+          'BIP — Becoming International Professionals — connects companies, innovators, and investors across technology, energy, healthcare, and more at summits in the Kurdistan Region.',
+      },
+      about: {
+        seoTitle: 'About',
+        seoDescription:
+          'Learn about the BIP Program — connecting companies, innovators, and investors across the Kurdistan Region.',
+        eyebrow: 'About Us',
+      },
+      summits: {
+        seoTitle: 'Summits',
+        seoDescription:
+          'Explore BIP Summit editions — agendas, outcomes, and investment conversations from Erbil.',
+      },
+      news: {
+        seoTitle: 'News & Blogs',
+        seoDescription:
+          'News and stories from BIP Summits and the BIP Program community.',
+      },
+      speakers: {
+        seoTitle: 'Speakers',
+        seoDescription: 'Meet the speakers shaping BIP Summit conversations.',
+        listingTitle: 'Meet Our Speakers',
+      },
+      join: {
+        seoTitle: 'Join BIP Program',
+        seoDescription:
+          'Join the BIP Program and stay connected to summits, dealrooms, and follow-up.',
+        formTitle: 'Join BIP Program',
+        successTitle: 'Successfully Registered',
+      },
+      partner: {
+        seoTitle: 'Become a Partner',
+        seoDescription:
+          'Become a BIP partner — sponsor a track or collaborate on market entry.',
+        formTitle: 'Become a Partner',
+        benefitsHeading: 'Program Benefits',
+      },
+      contact: {
+        seoTitle: 'Contact',
+        seoDescription: 'Get in touch with the BIP Program team.',
+        eyebrow: 'Contact Us',
+        heading: 'Get in Touch',
+      },
+    },
+  })
+
+  console.log('Updating Sections…')
+  await payload.updateGlobal({
+    slug: 'sections',
+    locale: EN,
+    depth: 0,
+    data: {
+      missionTabs: [
         {
           tabId: 'mission',
           label: 'Our Mission',
@@ -550,110 +472,67 @@ async function seed() {
             'so introductions become diligence — and diligence becomes deals.',
         },
       ],
+      stats: [
+        { value: '208', label: 'TOTAL ATTENDEES' },
+        { value: '16+', label: 'COUNTRIES' },
+        { value: '$360M+', label: 'INVESTMENT FACILITATED' },
+        { value: '3', label: 'EDITIONS' },
+        { value: '24', label: 'SPEAKERS' },
+      ],
+      sectors: KEY_SECTORS.map((s) => ({
+        number: s.number,
+        title: s.title,
+        description: s.description,
+        href: s.href,
+      })),
+      summitEditions: SUMMIT_EDITIONS.map((s) => ({
+        year: s.year,
+        description: s.description,
+        href: s.href,
+      })),
+      videos: videoRows,
+      gallery: galleryRows,
+      mediaChannels: channelRows,
+      programHighlights: PROGRAM_HIGHLIGHTS.map((h) => ({
+        number: h.number,
+        title: h.title,
+        description: h.description,
+      })),
+      partnership: {
+        sponsor: {
+          title: PARTNERSHIP_OVERLAYS.sponsor.title,
+          description: PARTNERSHIP_OVERLAYS.sponsor.description,
+          benefits: PARTNERSHIP_OVERLAYS.sponsor.benefits.map((b) => ({
+            number: b.number,
+            text: b.text,
+          })),
+        },
+        collaborator: {
+          title: PARTNERSHIP_OVERLAYS.collaborator.title,
+          description: PARTNERSHIP_OVERLAYS.collaborator.description,
+          benefits: PARTNERSHIP_OVERLAYS.collaborator.benefits.map((b) => ({
+            number: b.number,
+            text: b.text,
+          })),
+        },
+      },
+      sectionIntros: { ...SECTION_INTROS },
+      formIntros: { ...FORM_INTROS },
+      aiChat: {
+        welcome: 'Welcome to BIP AI',
+        subtitle: 'Ask anything about BIP Summit',
+        placeholder: 'Ask Here...',
+        typing: 'BIP AI is typing…',
+        replies: chatRows,
+      },
     },
   })
 
+  console.log('Updating UI Labels…')
   await payload.updateGlobal({
-    slug: 'section-intros',
+    slug: 'translations',
     locale: EN,
-    data: { ...SECTION_INTROS },
-  })
-
-  await payload.updateGlobal({
-    slug: 'form-intros',
-    locale: EN,
-    data: { ...FORM_INTROS },
-  })
-
-  await payload.updateGlobal({
-    slug: 'ai-chat',
-    locale: EN,
-    data: {
-      welcome: 'Welcome to BIP AI',
-      subtitle: 'Ask anything about BIP Summit',
-      placeholder: 'Ask Here...',
-      typing: 'BIP AI is typing…',
-    },
-  })
-
-  // Page SEO globals (defaults already in schema; refresh EN)
-  await payload.updateGlobal({
-    slug: 'home-page',
-    locale: EN,
-    data: {
-      seoTitle: 'BIP Summit',
-      seoDescription:
-        'BIP — Becoming International Professionals — connects companies, innovators, and investors across technology, energy, healthcare, and more at summits in the Kurdistan Region.',
-    },
-  })
-  await payload.updateGlobal({
-    slug: 'about-page',
-    locale: EN,
-    data: {
-      seoTitle: 'About',
-      seoDescription:
-        'Learn about the BIP Program — connecting companies, innovators, and investors across the Kurdistan Region.',
-      eyebrow: 'About Us',
-    },
-  })
-  await payload.updateGlobal({
-    slug: 'summits-page',
-    locale: EN,
-    data: {
-      seoTitle: 'Summits',
-      seoDescription:
-        'Explore BIP Summit editions — agendas, outcomes, and investment conversations from Erbil.',
-    },
-  })
-  await payload.updateGlobal({
-    slug: 'news-page',
-    locale: EN,
-    data: {
-      seoTitle: 'News & Blogs',
-      seoDescription:
-        'News and stories from BIP Summits and the BIP Program community.',
-    },
-  })
-  await payload.updateGlobal({
-    slug: 'speakers-page',
-    locale: EN,
-    data: {
-      seoTitle: 'Speakers',
-      seoDescription: 'Meet the speakers shaping BIP Summit conversations.',
-      listingTitle: 'Meet Our Speakers',
-    },
-  })
-  await payload.updateGlobal({
-    slug: 'join-page',
-    locale: EN,
-    data: {
-      seoTitle: 'Join BIP Program',
-      seoDescription:
-        'Join the BIP Program and stay connected to summits, dealrooms, and follow-up.',
-      formTitle: 'Join BIP Program',
-      successTitle: 'Successfully Registered',
-    },
-  })
-  await payload.updateGlobal({
-    slug: 'partner-page',
-    locale: EN,
-    data: {
-      seoTitle: 'Become a Partner',
-      seoDescription:
-        'Become a BIP partner — sponsor a track or collaborate on market entry.',
-      formTitle: 'Become a Partner',
-      benefitsHeading: 'Program Benefits',
-    },
-  })
-  await payload.updateGlobal({
-    slug: 'contact-page',
-    locale: EN,
-    data: {
-      seoTitle: 'Contact',
-      seoDescription: 'Get in touch with the BIP Program team.',
-      eyebrow: 'Contact Us',
-      heading: 'Get in Touch',
-    },
+    data: TRANSLATIONS_EN,
   })
 
   console.log('Seed complete.')

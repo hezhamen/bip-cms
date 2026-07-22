@@ -2,7 +2,12 @@ import type { CollectionConfig } from 'payload'
 
 export const Speakers: CollectionConfig = {
   slug: 'speakers',
+  labels: {
+    singular: 'Speaker',
+    plural: 'Speakers',
+  },
   admin: {
+    group: 'Content',
     useAsTitle: 'name',
     defaultColumns: ['name', 'role', 'slug', 'order'],
   },

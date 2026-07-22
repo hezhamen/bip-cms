@@ -1,115 +1,127 @@
 import type { Field, GlobalConfig } from 'payload'
 import { LText } from '../utilities/fields'
 
-function pageSeoFields(defaults: {
-  title: string
-  description: string
-}): Field[] {
+function seoFields(
+  defaults: { seoTitle: string; seoDescription: string },
+  extra: Field[] = [],
+): Field[] {
   return [
-    LText('seoTitle', 'SEO Title', defaults.title),
-    LText('seoDescription', 'SEO Description', defaults.description, {
+    LText('seoTitle', 'SEO Title', defaults.seoTitle),
+    LText('seoDescription', 'SEO Description', defaults.seoDescription, {
       textarea: true,
     }),
+    ...extra,
   ]
 }
 
-export const AboutPage: GlobalConfig = {
-  slug: 'about-page',
-  label: 'About Page',
+/** All page SEO + page-only copy in one editor with tabs. */
+export const Pages: GlobalConfig = {
+  slug: 'pages',
+  label: 'Pages',
+  admin: {
+    group: 'Site',
+    description: 'SEO and page-specific copy for each route',
+  },
   access: { read: () => true },
   fields: [
-    ...pageSeoFields({
-      title: 'About',
-      description:
-        'Learn about the BIP Program — connecting companies, innovators, and investors across the Kurdistan Region.',
-    }),
-    LText('eyebrow', 'Eyebrow', 'About Us'),
+    {
+      type: 'tabs',
+      tabs: [
+        {
+          name: 'home',
+          label: 'Home',
+          fields: seoFields({
+            seoTitle: 'BIP Summit',
+            seoDescription:
+              'BIP — Becoming International Professionals — connects companies, innovators, and investors across technology, energy, healthcare, and more at summits in the Kurdistan Region.',
+          }),
+        },
+        {
+          name: 'about',
+          label: 'About',
+          fields: seoFields(
+            {
+              seoTitle: 'About',
+              seoDescription:
+                'Learn about the BIP Program — connecting companies, innovators, and investors across the Kurdistan Region.',
+            },
+            [LText('eyebrow', 'Eyebrow', 'About Us')],
+          ),
+        },
+        {
+          name: 'summits',
+          label: 'Summits',
+          fields: seoFields({
+            seoTitle: 'Summits',
+            seoDescription:
+              'Explore BIP Summit editions — agendas, outcomes, and investment conversations from Erbil.',
+          }),
+        },
+        {
+          name: 'news',
+          label: 'News',
+          fields: seoFields({
+            seoTitle: 'News & Blogs',
+            seoDescription:
+              'News and stories from BIP Summits and the BIP Program community.',
+          }),
+        },
+        {
+          name: 'speakers',
+          label: 'Speakers',
+          fields: seoFields(
+            {
+              seoTitle: 'Speakers',
+              seoDescription: 'Meet the speakers shaping BIP Summit conversations.',
+            },
+            [LText('listingTitle', 'Listing Title', 'Meet Our Speakers')],
+          ),
+        },
+        {
+          name: 'join',
+          label: 'Join',
+          fields: seoFields(
+            {
+              seoTitle: 'Join BIP Program',
+              seoDescription:
+                'Join the BIP Program and stay connected to summits, dealrooms, and follow-up.',
+            },
+            [
+              LText('formTitle', 'Form Title', 'Join BIP Program'),
+              LText('successTitle', 'Success Title', 'Successfully Registered'),
+            ],
+          ),
+        },
+        {
+          name: 'partner',
+          label: 'Partner',
+          fields: seoFields(
+            {
+              seoTitle: 'Become a Partner',
+              seoDescription:
+                'Become a BIP partner — sponsor a track or collaborate on market entry.',
+            },
+            [
+              LText('formTitle', 'Form Title', 'Become a Partner'),
+              LText('benefitsHeading', 'Benefits Heading', 'Program Benefits'),
+            ],
+          ),
+        },
+        {
+          name: 'contact',
+          label: 'Contact',
+          fields: seoFields(
+            {
+              seoTitle: 'Contact',
+              seoDescription: 'Get in touch with the BIP Program team.',
+            },
+            [
+              LText('eyebrow', 'Eyebrow', 'Contact Us'),
+              LText('heading', 'Heading', 'Get in Touch'),
+            ],
+          ),
+        },
+      ],
+    },
   ],
-}
-
-export const SummitsPage: GlobalConfig = {
-  slug: 'summits-page',
-  label: 'Summits Page',
-  access: { read: () => true },
-  fields: pageSeoFields({
-    title: 'Summits',
-    description:
-      'Explore BIP Summit editions — agendas, outcomes, and investment conversations from Erbil.',
-  }),
-}
-
-export const NewsPage: GlobalConfig = {
-  slug: 'news-page',
-  label: 'News Page',
-  access: { read: () => true },
-  fields: pageSeoFields({
-    title: 'News & Blogs',
-    description: 'News and stories from BIP Summits and the BIP Program community.',
-  }),
-}
-
-export const SpeakersPage: GlobalConfig = {
-  slug: 'speakers-page',
-  label: 'Speakers Page',
-  access: { read: () => true },
-  fields: [
-    ...pageSeoFields({
-      title: 'Speakers',
-      description: 'Meet the speakers shaping BIP Summit conversations.',
-    }),
-    LText('listingTitle', 'Listing Title', 'Meet Our Speakers'),
-  ],
-}
-
-export const JoinPage: GlobalConfig = {
-  slug: 'join-page',
-  label: 'Join Page',
-  access: { read: () => true },
-  fields: [
-    ...pageSeoFields({
-      title: 'Join BIP Program',
-      description: 'Join the BIP Program and stay connected to summits, dealrooms, and follow-up.',
-    }),
-    LText('formTitle', 'Form Title', 'Join BIP Program'),
-    LText('successTitle', 'Success Title', 'Successfully Registered'),
-  ],
-}
-
-export const PartnerPage: GlobalConfig = {
-  slug: 'partner-page',
-  label: 'Partner Page',
-  access: { read: () => true },
-  fields: [
-    ...pageSeoFields({
-      title: 'Become a Partner',
-      description: 'Become a BIP partner — sponsor a track or collaborate on market entry.',
-    }),
-    LText('formTitle', 'Form Title', 'Become a Partner'),
-    LText('benefitsHeading', 'Benefits Heading', 'Program Benefits'),
-  ],
-}
-
-export const ContactPage: GlobalConfig = {
-  slug: 'contact-page',
-  label: 'Contact Page',
-  access: { read: () => true },
-  fields: [
-    ...pageSeoFields({
-      title: 'Contact',
-      description: 'Get in touch with the BIP Program team.',
-    }),
-    LText('eyebrow', 'Eyebrow', 'Contact Us'),
-    LText('heading', 'Heading', 'Get in Touch'),
-  ],
-}
-
-export const HomePage: GlobalConfig = {
-  slug: 'home-page',
-  label: 'Home Page',
-  access: { read: () => true },
-  fields: pageSeoFields({
-    title: 'BIP Summit',
-    description:
-      'BIP — Becoming International Professionals — connects companies, innovators, and investors across technology, energy, healthcare, and more at summits in the Kurdistan Region.',
-  }),
 }

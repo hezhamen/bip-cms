@@ -9,34 +9,11 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Speakers } from './collections/Speakers'
 import { NewsArticles } from './collections/NewsArticles'
-import { Videos } from './collections/Videos'
-import { GallerySlides } from './collections/GallerySlides'
-import { Sectors } from './collections/Sectors'
-import { SummitEditions } from './collections/SummitEditions'
-import { ProgramHighlights } from './collections/ProgramHighlights'
-import { MediaChannels } from './collections/MediaChannels'
-import { ChatReplies } from './collections/ChatReplies'
-import { Stats } from './collections/Stats'
-import { PartnershipTracks } from './collections/PartnershipTracks'
 
-import { SiteSettings } from './globals/SiteSettings'
-import { Navigation } from './globals/Navigation'
+import { Website } from './globals/Website'
+import { Pages } from './globals/Pages'
+import { Sections } from './globals/Sections'
 import { Translations } from './globals/Translations'
-import { LanguagesSettings } from './globals/LanguagesSettings'
-import { Mission } from './globals/Mission'
-import { SectionIntros } from './globals/SectionIntros'
-import { FormIntros } from './globals/FormIntros'
-import { AiChat } from './globals/AiChat'
-import {
-  AboutPage,
-  ContactPage,
-  HomePage,
-  JoinPage,
-  NewsPage,
-  PartnerPage,
-  SpeakersPage,
-  SummitsPage,
-} from './globals/Pages'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -54,39 +31,8 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [
-    Users,
-    Media,
-    Speakers,
-    NewsArticles,
-    Videos,
-    GallerySlides,
-    Sectors,
-    SummitEditions,
-    ProgramHighlights,
-    MediaChannels,
-    ChatReplies,
-    Stats,
-    PartnershipTracks,
-  ],
-  globals: [
-    SiteSettings,
-    Navigation,
-    Translations,
-    LanguagesSettings,
-    Mission,
-    SectionIntros,
-    FormIntros,
-    AiChat,
-    HomePage,
-    AboutPage,
-    SummitsPage,
-    NewsPage,
-    SpeakersPage,
-    JoinPage,
-    PartnerPage,
-    ContactPage,
-  ],
+  collections: [Speakers, NewsArticles, Media, Users],
+  globals: [Website, Pages, Sections, Translations],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || 'dev-secret-change-me',
   typescript: {

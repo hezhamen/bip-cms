@@ -3,7 +3,11 @@ import { LText } from '../utilities/fields'
 
 export const Translations: GlobalConfig = {
   slug: 'translations',
-  label: 'Translations (UI)',
+  label: 'UI Labels',
+  admin: {
+    group: 'Site',
+    description: 'Button labels, nav strings, form labels (en / ku / ar)',
+  },
   access: {
     read: () => true,
   },
