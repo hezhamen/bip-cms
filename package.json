@@ -13,6 +13,7 @@
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "seed": "cross-env NODE_OPTIONS=\"--no-deprecation --experimental-strip-types\" tsx src/scripts/seed.ts",
+    "seed:remote": "cross-env NODE_OPTIONS=\"--no-deprecation --experimental-strip-types\" tsx src/scripts/seed-remote.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
   },
   "dependencies": {

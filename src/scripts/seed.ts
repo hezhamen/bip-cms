@@ -1,6 +1,7 @@
 /**
- * Seed BIP CMS with English content from bip-web.
+ * Seed BIP CMS with content from bip-web (en + ku + ar).
  * Run: pnpm seed  (Postgres via docker compose must be running)
+ * Remote: DATABASE_URL=... pnpm seed  (then sync media — prefer pnpm seed:remote)
  */
 import 'dotenv/config'
 import fs from 'fs'
@@ -28,12 +29,15 @@ import {
   PROGRAM_BLURB,
   SECTION_INTROS,
 } from '../../../bip-web/src/data/copy'
+import { LABEL_LOCALES } from './labels'
+import { PAGES_LOCALES, SECTIONS_LOCALES, WEBSITE_LOCALES } from './locale-content'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const BIP_WEB_PUBLIC = path.resolve(__dirname, '../../../bip-web/public')
 
 const EN = 'en' as const
+const LOCALES = ['en', 'ku', 'ar'] as const
 
 async function uploadFile(
   payload: Awaited<ReturnType<typeof getPayload>>,
@@ -74,120 +78,6 @@ function mimeFor(filename: string): string {
   if (ext === '.svg') return 'image/svg+xml'
   if (ext === '.webp') return 'image/webp'
   return 'image/jpeg'
-}
-
-const TRANSLATIONS_EN = {
-  register: 'Register',
-  learnMore: 'Learn More',
-  explore: 'Explore',
-  viewAll: 'View All',
-  submit: 'Submit',
-  join: 'Join',
-  sendMessage: 'Send Message',
-  contact: 'Contact',
-  joinUs: 'Join Us',
-  askBipAi: 'Ask BIP AI',
-  close: 'Close',
-  closeDialog: 'Close dialog',
-  closeOverlay: 'Close {title}',
-  navHome: 'Home',
-  navAbout: 'About',
-  navSummits: 'Summits',
-  navNews: 'News & Blogs',
-  navPrograms: 'Programs',
-  navContactUs: 'Contact Us',
-  navWorkWithUs: 'Work With Us',
-  navRegister: 'Register',
-  footerNavTitle: 'NAVIGATION',
-  footerSocialTitle: 'SOCIAL MEDIA',
-  footerProgramsTitle: 'LAST PROGRAMS',
-  footerContactTitle: 'Contact Dilnia',
-  footerBlurb:
-    'Empowering innovation through strategic partnerships and sustainable growth solutions.',
-  logoHomeAria: 'BIP Summit home',
-  logoAlt: 'BIP Summit',
-  primaryNavAria: 'Primary',
-  mobileNavAria: 'Mobile',
-  openChatAria: 'Open BIP AI chat',
-  toggleMenuAria: 'Toggle menu',
-  socialFacebook: 'Facebook',
-  socialInstagram: 'Instagram',
-  socialLinkedin: 'Linkedin',
-  socialYoutube: 'Youtube',
-  socialWhatsapp: 'Whatsapp',
-  socialX: 'X',
-  meetOurSpeakers: 'Meet Our Speakers',
-  keySectors: 'Key Sectors',
-  youtubeHighlights: 'YouTube Highlights',
-  newsBlog: 'News & Blog',
-  summits: 'Summits',
-  gallery: 'Gallery',
-  mediaChannels: 'Media & Channels',
-  participatingCountries: 'Participating Countries',
-  programBenefits: 'Program Benefits',
-  relatedArticles: 'Related Articles',
-  aboutSpeaker: 'About Speaker',
-  aboutUs: 'About Us',
-  contactUs: 'Contact Us',
-  getInTouch: 'Get in Touch',
-  ctaBandHeading: 'Get in Touch',
-  pioneeringPart1: 'A pioneering program that unites ',
-  pioneeringPart2: 'companies, innovators, and investors ',
-  pioneeringPart3: 'for a shared future of prosperity.',
-  fullName: 'Full Name',
-  lastName: 'Last Name',
-  companyName: 'Company Name',
-  positionTitle: 'Position / Title',
-  emailAddress: 'Email Address',
-  phoneNumber: 'Phone Number',
-  address: 'Address',
-  countryRegion: 'Country Region',
-  industrySector: 'Industry sector',
-  partnershipType: 'Partnership Type',
-  subject: 'Subject',
-  message: 'Message',
-  registerFormTitle: 'Register for BIP Program',
-  registerSubmit: 'Register',
-  joinFormTitle: 'Join BIP Program',
-  joinSubmit: 'Join',
-  consentEmailPrivacy:
-    'I agree to receive email updates and accept the Privacy Policy.',
-  consentNewsletters:
-    'I agree to receive newsletters, updates, and promotional offers. I can unsubscribe at any time.',
-  joinSuccessTitle: 'Successfully Registered',
-  partnerFormTitle: 'Become a Partner',
-  partnerSubmit: 'Submit',
-  contactSubmit: 'Send Message',
-  optionKurdistan: 'Kurdistan Region',
-  optionIraq: 'Iraq',
-  optionUae: 'United Arab Emirates',
-  optionOther: 'Other',
-  optionTechnology: 'Technology & AI',
-  optionEnergy: 'Green Energy',
-  optionHealthcare: 'Healthcare',
-  optionConstruction: 'Construction',
-  optionBanking: 'Banking & Finance',
-  optionTourism: 'Tourism & Hospitality',
-  optionFranchise: 'Franchise Development',
-  optionInvestment: 'Investment',
-  optionSponsor: 'Sponsor',
-  optionCollaborator: 'Collaborator',
-  optionMediaPartner: 'Media Partner',
-  previousImage: 'Previous image',
-  nextImage: 'Next image',
-  worldMapAlt: 'World map showing BIP Summit participating countries',
-  browseNewsAria: 'Browse news articles',
-  browseSpeakersAria: 'Browse speakers',
-  aboutBipAria: 'About BIP',
-  pageComingSoon: 'This page is coming soon.',
-  mediaHeroAlt: 'Audience at a BIP Summit event',
-  chatWelcome: 'Welcome to BIP AI',
-  chatSubtitle: 'Ask anything about BIP Summit',
-  chatPlaceholder: 'Ask Here...',
-  sendMessageAria: 'Send message',
-  closeChatAria: 'Close BIP AI chat',
-  chatSrOnly: 'BIP AI chat',
-  chatTyping: 'BIP AI is typing…',
 }
 
 async function clearCollection(
@@ -528,12 +418,60 @@ async function seed() {
     },
   })
 
-  console.log('Updating UI Labels…')
-  await payload.updateGlobal({
-    slug: 'translations',
-    locale: EN,
-    data: TRANSLATIONS_EN,
-  })
+  console.log('Updating UI Labels (en / ku / ar)…')
+  for (const locale of LOCALES) {
+    await payload.updateGlobal({
+      slug: 'translations',
+      locale,
+      data: { labels: LABEL_LOCALES[locale] },
+    })
+    console.log(`  translations:${locale}`)
+  }
+
+  console.log('Applying ku / ar website + pages + sections…')
+  for (const locale of ['ku', 'ar'] as const) {
+    const site = WEBSITE_LOCALES[locale]
+    await payload.updateGlobal({
+      slug: 'website',
+      locale,
+      data: {
+        pioneeringHeadline: site.pioneeringHeadline,
+        programBlurb: site.programBlurb,
+        programIntro: site.programIntro,
+        ctaBandBody: site.ctaBandBody,
+        ctaBandHeading: site.ctaBandHeading,
+        metaDescription: site.metaDescription,
+        headerLinks: site.headerLinks,
+        headerCtas: site.headerCtas,
+        footerNavLinks: site.footerNavLinks,
+        footerSocialLinks: site.footerSocialLinks,
+        footerProgramLinks: site.footerProgramLinks,
+      },
+    })
+
+    await payload.updateGlobal({
+      slug: 'pages',
+      locale,
+      data: PAGES_LOCALES[locale],
+    })
+
+    const sections = SECTIONS_LOCALES[locale]
+    await payload.updateGlobal({
+      slug: 'sections',
+      locale,
+      depth: 0,
+      data: {
+        missionTabs: sections.missionTabs,
+        stats: sections.stats,
+        sectionIntros: sections.sectionIntros,
+        formIntros: sections.formIntros,
+        aiChat: {
+          ...sections.aiChat,
+        },
+      },
+    })
+    console.log(`  localized chrome:${locale}`)
+  }
 
   console.log('Seed complete.')
   process.exit(0)

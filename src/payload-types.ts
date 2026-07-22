@@ -697,121 +697,25 @@ export interface Section {
   createdAt?: string | null;
 }
 /**
- * Button labels, nav strings, form labels (en / ku / ar)
+ * Button / nav / form strings per locale (en · ku · ar). Edit the JSON object; keys must match the website dictionary.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "translations".
  */
 export interface Translation {
   id: number;
-  register: string;
-  learnMore: string;
-  explore: string;
-  viewAll: string;
-  submit: string;
-  join: string;
-  sendMessage: string;
-  contact: string;
-  joinUs: string;
-  askBipAi: string;
-  close: string;
-  closeDialog: string;
-  closeOverlay: string;
-  navHome: string;
-  navAbout: string;
-  navSummits: string;
-  navNews: string;
-  navPrograms: string;
-  navContactUs: string;
-  navWorkWithUs: string;
-  navRegister: string;
-  footerNavTitle: string;
-  footerSocialTitle: string;
-  footerProgramsTitle: string;
-  footerContactTitle: string;
-  footerBlurb: string;
-  logoHomeAria: string;
-  logoAlt: string;
-  primaryNavAria: string;
-  mobileNavAria: string;
-  openChatAria: string;
-  toggleMenuAria: string;
-  socialFacebook: string;
-  socialInstagram: string;
-  socialLinkedin: string;
-  socialYoutube: string;
-  socialWhatsapp: string;
-  socialX: string;
-  meetOurSpeakers: string;
-  keySectors: string;
-  youtubeHighlights: string;
-  newsBlog: string;
-  summits: string;
-  gallery: string;
-  mediaChannels: string;
-  participatingCountries: string;
-  programBenefits: string;
-  relatedArticles: string;
-  aboutSpeaker: string;
-  aboutUs: string;
-  contactUs: string;
-  getInTouch: string;
-  ctaBandHeading: string;
-  pioneeringPart1: string;
-  pioneeringPart2: string;
-  pioneeringPart3: string;
-  fullName: string;
-  lastName: string;
-  companyName: string;
-  positionTitle: string;
-  emailAddress: string;
-  phoneNumber: string;
-  address: string;
-  countryRegion: string;
-  industrySector: string;
-  partnershipType: string;
-  subject: string;
-  message: string;
-  registerFormTitle: string;
-  registerSubmit: string;
-  joinFormTitle: string;
-  joinSubmit: string;
-  consentEmailPrivacy: string;
-  consentNewsletters: string;
-  joinSuccessTitle: string;
-  partnerFormTitle: string;
-  partnerSubmit: string;
-  contactSubmit: string;
-  optionKurdistan: string;
-  optionIraq: string;
-  optionUae: string;
-  optionOther: string;
-  optionTechnology: string;
-  optionEnergy: string;
-  optionHealthcare: string;
-  optionConstruction: string;
-  optionBanking: string;
-  optionTourism: string;
-  optionFranchise: string;
-  optionInvestment: string;
-  optionSponsor: string;
-  optionCollaborator: string;
-  optionMediaPartner: string;
-  previousImage: string;
-  nextImage: string;
-  worldMapAlt: string;
-  browseNewsAria: string;
-  browseSpeakersAria: string;
-  aboutBipAria: string;
-  pageComingSoon: string;
-  mediaHeroAlt: string;
-  chatWelcome: string;
-  chatSubtitle: string;
-  chatPlaceholder: string;
-  sendMessageAria: string;
-  closeChatAria: string;
-  chatSrOnly: string;
-  chatTyping: string;
+  /**
+   * Flat key → string map (register, navHome, fullName, …). Leave a key out to fall back to English defaults on the site.
+   */
+  labels:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1096,114 +1000,7 @@ export interface SectionsSelect<T extends boolean = true> {
  * via the `definition` "translations_select".
  */
 export interface TranslationsSelect<T extends boolean = true> {
-  register?: T;
-  learnMore?: T;
-  explore?: T;
-  viewAll?: T;
-  submit?: T;
-  join?: T;
-  sendMessage?: T;
-  contact?: T;
-  joinUs?: T;
-  askBipAi?: T;
-  close?: T;
-  closeDialog?: T;
-  closeOverlay?: T;
-  navHome?: T;
-  navAbout?: T;
-  navSummits?: T;
-  navNews?: T;
-  navPrograms?: T;
-  navContactUs?: T;
-  navWorkWithUs?: T;
-  navRegister?: T;
-  footerNavTitle?: T;
-  footerSocialTitle?: T;
-  footerProgramsTitle?: T;
-  footerContactTitle?: T;
-  footerBlurb?: T;
-  logoHomeAria?: T;
-  logoAlt?: T;
-  primaryNavAria?: T;
-  mobileNavAria?: T;
-  openChatAria?: T;
-  toggleMenuAria?: T;
-  socialFacebook?: T;
-  socialInstagram?: T;
-  socialLinkedin?: T;
-  socialYoutube?: T;
-  socialWhatsapp?: T;
-  socialX?: T;
-  meetOurSpeakers?: T;
-  keySectors?: T;
-  youtubeHighlights?: T;
-  newsBlog?: T;
-  summits?: T;
-  gallery?: T;
-  mediaChannels?: T;
-  participatingCountries?: T;
-  programBenefits?: T;
-  relatedArticles?: T;
-  aboutSpeaker?: T;
-  aboutUs?: T;
-  contactUs?: T;
-  getInTouch?: T;
-  ctaBandHeading?: T;
-  pioneeringPart1?: T;
-  pioneeringPart2?: T;
-  pioneeringPart3?: T;
-  fullName?: T;
-  lastName?: T;
-  companyName?: T;
-  positionTitle?: T;
-  emailAddress?: T;
-  phoneNumber?: T;
-  address?: T;
-  countryRegion?: T;
-  industrySector?: T;
-  partnershipType?: T;
-  subject?: T;
-  message?: T;
-  registerFormTitle?: T;
-  registerSubmit?: T;
-  joinFormTitle?: T;
-  joinSubmit?: T;
-  consentEmailPrivacy?: T;
-  consentNewsletters?: T;
-  joinSuccessTitle?: T;
-  partnerFormTitle?: T;
-  partnerSubmit?: T;
-  contactSubmit?: T;
-  optionKurdistan?: T;
-  optionIraq?: T;
-  optionUae?: T;
-  optionOther?: T;
-  optionTechnology?: T;
-  optionEnergy?: T;
-  optionHealthcare?: T;
-  optionConstruction?: T;
-  optionBanking?: T;
-  optionTourism?: T;
-  optionFranchise?: T;
-  optionInvestment?: T;
-  optionSponsor?: T;
-  optionCollaborator?: T;
-  optionMediaPartner?: T;
-  previousImage?: T;
-  nextImage?: T;
-  worldMapAlt?: T;
-  browseNewsAria?: T;
-  browseSpeakersAria?: T;
-  aboutBipAria?: T;
-  pageComingSoon?: T;
-  mediaHeroAlt?: T;
-  chatWelcome?: T;
-  chatSubtitle?: T;
-  chatPlaceholder?: T;
-  sendMessageAria?: T;
-  closeChatAria?: T;
-  chatSrOnly?: T;
-  chatTyping?: T;
+  labels?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
